@@ -61,7 +61,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             text: "Login",
                             iconData: Icons.login,
                             onPress: () {
-                              if (!emailController.text.contains('@')) {
+                              if(emailController.text == '' ||
+                                passwordController.text == ''){
+                                  setState(() {
+                                    validation = "Please fill in the empty fields";
+                                  });
+                              } else if (!emailController.text.contains('@')
+                                  || !emailController.text.contains('.com')) {
                                 setState(() {
                                   validation = "Please provide a valid email";
                                 });

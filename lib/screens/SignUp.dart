@@ -14,8 +14,9 @@ class SignUp extends StatefulWidget {
 class _SignUpState extends State<SignUp> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordControllerFirst = TextEditingController();
-  final TextEditingController passwordControllerSecond =
-      TextEditingController();
+  final TextEditingController passwordControllerSecond =TextEditingController();
+  final TextEditingController firstNameController = TextEditingController();
+  final TextEditingController lastNameController = TextEditingController();
   bool obscurePassword1 = true;
   bool obscurePassword2 = true;
   String validation = '';
@@ -37,6 +38,22 @@ class _SignUpState extends State<SignUp> {
                   ),
                   Text(validation,
                       style: TextStyle(fontSize: 16.0, color: Colors.red)),
+                  const SizedBox(
+                    height: 20.0,
+                  ),
+                  CustomTextField(
+                      labelText: "First Name",
+                      hintText: "Enter your first name",
+                      controller: firstNameController,
+                      textInputType: TextInputType.text),
+                  const SizedBox(
+                    height: 20.0,
+                  ),
+                  CustomTextField(
+                      labelText: "Last Name",
+                      hintText: "Enter your last name",
+                      controller: lastNameController,
+                      textInputType: TextInputType.text),
                   const SizedBox(
                     height: 20.0,
                   ),
@@ -70,7 +87,16 @@ class _SignUpState extends State<SignUp> {
                       text: "Register",
                       iconData: Icons.app_registration,
                       onPress: () {
-                        if (!emailController.text.contains('@')) {
+                        if(emailController.text == ''
+                        || firstNameController.text == ''
+                        || lastNameController.text == ''
+                        || passwordControllerFirst.text == ''
+                        || passwordControllerSecond.text == ''){
+                          setState(() {
+                            validation = "Please fill in the empty fields";
+                          });
+                        } else if (!emailController.text.contains('@')
+                                  || !emailController.text.contains('.com')) {
                           setState(() {
                             validation = "Please provide a valid email";
                           });
