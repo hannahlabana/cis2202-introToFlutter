@@ -8,16 +8,16 @@ class Dashboard extends StatefulWidget {
   State<Dashboard> createState() => _DashboardState();
 }
 
-class ScreenArguments {
-  final String message;
+// class ScreenArguments {
+//   final String message;
 
-  ScreenArguments(this.message);
-}
+//   ScreenArguments(this.message);
+// }
 
 class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
-  final args = ModalRoute.of(context)!.settings.arguments as ScreenArguments;
+  //final args = ModalRoute.of(context)!.settings.arguments as ScreenArguments;
 
     return Scaffold(
       appBar: AppBar(
@@ -37,7 +37,7 @@ class _DashboardState extends State<Dashboard> {
         ],
       ),
       body: Center(
-        child: Text(args.message),
+        //child: Text(args.message),
       ),
     );
   }
