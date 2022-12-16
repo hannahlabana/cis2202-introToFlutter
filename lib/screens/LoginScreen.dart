@@ -3,12 +3,15 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_intro/screens/Dashboard.dart';
 import 'package:flutter_intro/screens/SignUp.dart';
+import 'package:flutter_intro/services/StorageService.dart';
 import 'package:flutter_intro/widget/CustomTextField.dart';
 import 'package:flutter_intro/widget/PasswordField.dart';
 import 'package:flutter_intro/widget/PrimaryButton.dart';
 import 'package:flutter_intro/services/AuthService.dart';
 import 'package:flutter_intro/services/EmailPassService.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+
+import '../models/StorageItem.dart';
 
 class LoginScreen extends StatefulWidget {
   static String routeName = "/login";
@@ -21,6 +24,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final AuthService _authService = AuthService();
   final EmailPassService _emailPassService = EmailPassService();
+  final StorageService _storageService = StorageService();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool obscurePassword = true;
@@ -138,6 +142,9 @@ class _LoginScreenState extends State<LoginScreen> {
         isLogginIn = true;
       });
       var user = await _authService.signInWithGoogle();
+      var accessToken =
+          StorageItem("accessToken", user.credential?.accessToken as String);
+      await _storageService.saveData(accessToken);
       Navigator.pushReplacementNamed(context, Dashboard.routeName);
     } catch (e) {
       print(e.toString());

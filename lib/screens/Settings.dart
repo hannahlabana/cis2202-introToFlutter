@@ -4,6 +4,7 @@ import 'package:flutter_intro/screens/LoginScreen.dart';
 import 'package:flutter_intro/services/AuthService.dart';
 
 import '../services/EmailPassService.dart';
+import '../services/StorageService.dart';
 
 class Settings extends StatefulWidget {
   static String routeName = "/settings";
@@ -14,6 +15,7 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
   final AuthService _authService = AuthService();
+  final StorageService _storageService = StorageService();
   final EmailPassService _emailPassService = EmailPassService();
   @override
   Widget build(BuildContext context) {
@@ -22,9 +24,8 @@ class _SettingsState extends State<Settings> {
         actions: [
           GestureDetector(
               onTap: () async {
-                //await _emailPassService.logout();
                 await _authService.logout();
-                //await FirebaseAuth.instance.signOut();
+                _storageService.deleteAllData();
                 Navigator.of(context).pushNamedAndRemoveUntil(
                     LoginScreen.routeName, (Route<dynamic> route) => false);
               },

@@ -8,28 +8,24 @@ import 'package:firebase_core/firebase_core.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  //MainPage();
+
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    initialRoute: LoginScreen.routeName,
+    home: MainPage(),
     routes: routes,
   ));
 }
 
-// class MainPage extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) => Scaffold(
-//       body: StreamBuilder<User?>(
-//           stream: FirebaseAuth.instance.authStateChanges(),
-//           builder: (context, snapshot) {
-//             if (snapshot.connectionState == ConnectionState.waiting) {
-//               return Center(child: CircularProgressIndicator());
-//             } else if (snapshot.hasError) {
-//               return Center(child: Text('Something went wrong!'));
-//             } else if (snapshot.hasData) {
-//               return Dashboard();
-//             } else {
-//               return AuthPage();
-//             }
-//           }));
-// }
+class MainPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) => Scaffold(
+      body: StreamBuilder<User?>(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Dashboard();
+            } else {
+              return LoginScreen();
+            }
+          }));
+}
