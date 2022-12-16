@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_intro/screens/Dashboard.dart';
 import 'package:flutter_intro/screens/SignUp.dart';
@@ -5,6 +7,7 @@ import 'package:flutter_intro/widget/CustomTextField.dart';
 import 'package:flutter_intro/widget/PasswordField.dart';
 import 'package:flutter_intro/widget/PrimaryButton.dart';
 import 'package:flutter_intro/services/AuthService.dart';
+import 'package:flutter_intro/services/EmailPassService.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -16,12 +19,21 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  AuthService _authService = AuthService();
+  final AuthService _authService = AuthService();
+  final EmailPassService _emailPassService = EmailPassService();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool obscurePassword = true;
   bool isLogginIn = false;
   String validation = '';
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,25 +84,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               text: "Login",
                               iconData: Icons.login,
                               onPress: () {
+                                loginWithEmailPass();
                                 // insert email and pass auth
-                                // if (emailController.text == '' ||
-                                //     passwordController.text == '') {
-                                //   setState(() {
-                                //     validation =
-                                //         "Please fill in the empty fields";
-                                //   });
-                                // } else if (!emailController.text.contains('@') ||
-                                //     !emailController.text.contains('.com')) {
-                                //   setState(() {
-                                //     validation = "Please provide a valid email";
-                                //   });
-                                // } else {
-                                //   Navigator.pushReplacementNamed(
-                                //       context, Dashboard.routeName,
-                                //       arguments: ScreenArguments(
-                                //         emailController.text,
-                                //       ));
-                                // }
                               }),
                           const SizedBox(
                             height: 30.0,
@@ -151,5 +146,37 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       isLogginIn = false;
     });
+  }
+
+  loginWithEmailPass() async {
+    if (emailController.text == '' || passwordController.text == '') {
+      setState(() {
+        validation = "Please fill in the empty fields";
+      });
+    } else if (!emailController.text.contains('@') ||
+        !emailController.text.contains('.com')) {
+      setState(() {
+        validation = "Please provide a valid email";
+      });
+    } else {
+      try {
+        setState(() {
+          isLogginIn = true;
+        });
+        var user = await _emailPassService.EmailPassSignIn(
+            emailController.text, passwordController.text);
+        Navigator.pushReplacementNamed(context, Dashboard.routeName);
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'user-not-found') {
+          setState(() {
+            validation = "No user found for that email.";
+          });
+        } else if (e.code == 'wrong-password') {
+          setState(() {
+            validation = e.toString();
+          });
+        }
+      }
+    }
   }
 }

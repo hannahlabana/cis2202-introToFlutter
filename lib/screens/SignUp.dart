@@ -1,20 +1,26 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_intro/screens/LoginScreen.dart';
 import 'package:flutter_intro/widget/CustomTextField.dart';
 import 'package:flutter_intro/widget/PasswordField.dart';
 import 'package:flutter_intro/widget/PrimaryButton.dart';
 
+import '../services/EmailPassService.dart';
+
 class SignUp extends StatefulWidget {
   static String routeName = "/signup";
+  const SignUp({super.key});
 
   @override
   State<SignUp> createState() => _SignUpState();
 }
 
 class _SignUpState extends State<SignUp> {
+  final EmailPassService _emailPassService = EmailPassService();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordControllerFirst = TextEditingController();
-  final TextEditingController passwordControllerSecond =TextEditingController();
+  final TextEditingController passwordControllerSecond =
+      TextEditingController();
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
   bool obscurePassword1 = true;
@@ -32,7 +38,11 @@ class _SignUpState extends State<SignUp> {
               child: Container(
                 width: width * 0.9,
                 child: Column(children: [
-                  Text('SIGN UP', style: TextStyle(fontSize: 32.0, color: Colors.blue, fontWeight: FontWeight.bold)),
+                  Text('SIGN UP',
+                      style: TextStyle(
+                          fontSize: 32.0,
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold)),
                   const SizedBox(
                     height: 10.0,
                   ),
@@ -41,22 +51,22 @@ class _SignUpState extends State<SignUp> {
                   const SizedBox(
                     height: 20.0,
                   ),
-                  CustomTextField(
-                      labelText: "First Name",
-                      hintText: "Enter your first name",
-                      controller: firstNameController,
-                      textInputType: TextInputType.text),
-                  const SizedBox(
-                    height: 20.0,
-                  ),
-                  CustomTextField(
-                      labelText: "Last Name",
-                      hintText: "Enter your last name",
-                      controller: lastNameController,
-                      textInputType: TextInputType.text),
-                  const SizedBox(
-                    height: 20.0,
-                  ),
+                  // CustomTextField(
+                  //     labelText: "First Name",
+                  //     hintText: "Enter your first name",
+                  //     controller: firstNameController,
+                  //     textInputType: TextInputType.text),
+                  // const SizedBox(
+                  //   height: 20.0,
+                  // ),
+                  // CustomTextField(
+                  //     labelText: "Last Name",
+                  //     hintText: "Enter your last name",
+                  //     controller: lastNameController,
+                  //     textInputType: TextInputType.text),
+                  // const SizedBox(
+                  //   height: 20.0,
+                  // ),
                   CustomTextField(
                       labelText: "Email",
                       hintText: "Enter your email address",
@@ -87,16 +97,14 @@ class _SignUpState extends State<SignUp> {
                       text: "Register",
                       iconData: Icons.app_registration,
                       onPress: () {
-                        if(emailController.text == ''
-                        || firstNameController.text == ''
-                        || lastNameController.text == ''
-                        || passwordControllerFirst.text == ''
-                        || passwordControllerSecond.text == ''){
+                        if (emailController.text == '' ||
+                            passwordControllerFirst.text == '' ||
+                            passwordControllerSecond.text == '') {
                           setState(() {
                             validation = "Please fill in the empty fields";
                           });
-                        } else if (!emailController.text.contains('@')
-                                  || !emailController.text.contains('.com')) {
+                        } else if (!emailController.text.contains('@') ||
+                            !emailController.text.contains('.com')) {
                           setState(() {
                             validation = "Please provide a valid email";
                           });
@@ -106,26 +114,27 @@ class _SignUpState extends State<SignUp> {
                             validation = "Passwords do not match. Try again";
                           });
                         } else {
-                          Navigator.pushReplacementNamed(
-                              context, LoginScreen.routeName);
-                        };
-                  }),
+                          signUpAuth();
+                          // Navigator.pushReplacementNamed(
+                          //     context, LoginScreen.routeName);
+                        }
+                        ;
+                      }),
                   const SizedBox(
                     height: 50.0,
-                    ),
-                    Container(
-                      child: Center(
+                  ),
+                  Container(
+                    child: Center(
                       child: GestureDetector(
-                        onTap: () {
-                          Navigator.pushNamed(
-                            context, LoginScreen.routeName);
+                          onTap: () {
+                            Navigator.pushNamed(context, LoginScreen.routeName);
                           },
                           child: const Text(
                             "Already have an account? Sign in here.",
                             style: TextStyle(fontSize: 16.0),
                           )),
-                        ),
                     ),
+                  ),
                 ]),
               ),
             ),
@@ -145,5 +154,25 @@ class _SignUpState extends State<SignUp> {
     setState(() {
       obscurePassword2 = !obscurePassword2;
     });
+  }
+
+  signUpAuth() async {
+    try {
+      var user = await _emailPassService.EmailPassRegister(
+          emailController.text, passwordControllerFirst.text);
+      Navigator.pushReplacementNamed(context, LoginScreen.routeName);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        setState(() {
+          validation = 'The password provided is too weak.';
+        });
+      } else if (e.code == 'email-already-in-use') {
+        setState(() {
+          validation = 'The account already exists for that email.';
+        });
+      }
+    } catch (e) {
+      validation = e.toString();
+    }
   }
 }

@@ -1,6 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_intro/screens/LoginScreen.dart';
 import 'package:flutter_intro/services/AuthService.dart';
+
+import '../services/EmailPassService.dart';
 
 class Settings extends StatefulWidget {
   static String routeName = "/settings";
@@ -10,7 +13,8 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  AuthService _authService = AuthService();
+  final AuthService _authService = AuthService();
+  final EmailPassService _emailPassService = EmailPassService();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,7 +22,9 @@ class _SettingsState extends State<Settings> {
         actions: [
           GestureDetector(
               onTap: () async {
+                //await _emailPassService.logout();
                 await _authService.logout();
+                //await FirebaseAuth.instance.signOut();
                 Navigator.of(context).pushNamedAndRemoveUntil(
                     LoginScreen.routeName, (Route<dynamic> route) => false);
               },
